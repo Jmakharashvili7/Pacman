@@ -36,6 +36,7 @@ struct PowerUp
 	Texture2D* texture;
 	Vector2* position;
 	Rect* sourceRect;
+	int testing;
 };
 
 struct Button
@@ -53,6 +54,17 @@ struct Menu
 	Button* startButton;
 	Button* optionsButton;
 	Button* quitButton;
+};
+
+struct Player
+{
+	int direction;
+	int currentFrameTime;
+	int frame;
+	LifeUI* lifeUI;
+	Texture2D* texture;
+	Vector2* position;
+	Rect* sourceRect;
 };
 
 struct GameManager
