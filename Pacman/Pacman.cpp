@@ -425,16 +425,16 @@ void Pacman::UpdatePacman(int elapsedTime)
 	_pacman->currentFrameTime += elapsedTime;
 
 	_pacman->sourceRect->Y = _pacman->sourceRect->Height * _pacman->direction; // Change pacmans direction
-	_pacman->sourceRect->X = _pacman->sourceRect->Width * _pacman->frame; // Change Pacmans mouth
+	_pacman->sourceRect->X = _pacman->sourceRect->Width * _pacman->frameCount; // Change Pacmans mouth
 
 	// Pacman Animation Cycles
 	if (_pacman->currentFrameTime > _cPacmanFrameTime)
 	{
-		_pacman->frame++;
+		_pacman->frameCount++;
 
 		// If we're at the last frame cycle back to start
-		if (_pacman->frame >= 2)
-			_pacman->frame = 0;
+		if (_pacman->frameCount >= 2)
+			_pacman->frameCount = 0;
 
 		_pacman->currentFrameTime = 0; // Reset Frame Time
 	}

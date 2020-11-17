@@ -12,7 +12,6 @@
 #define CHERRYCOUNT 4
 #define PACMANLIVES 3
 #define ENEMYCOUNT 4
-#define BUTTONCOUNT 3
 
 // Just need to include main header file
 #include "S2D/S2D.h"
@@ -25,6 +24,18 @@ struct LifeUI
 	int amount;
 	Texture2D* texture;
 	Vector2* positions[PACMANLIVES];
+	Rect* sourceRect;
+};
+
+struct Player
+{
+	int direction;
+	int frameCount;
+	int frameTime;
+	int currentFrameTime;
+	LifeUI* lifeUI;
+	Texture2D* texture;
+	Vector2* position;
 	Rect* sourceRect;
 };
 
