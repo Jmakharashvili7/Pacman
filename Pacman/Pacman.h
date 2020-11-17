@@ -16,6 +16,7 @@
 
 // Just need to include main header file
 #include "S2D/S2D.h"
+#include "PlayerClass.h"
 
 // Reduces the amount of typing by including all classes in S2D namespace
 using namespace S2D;
@@ -36,8 +37,6 @@ struct PowerUp
 	Texture2D* texture;
 	Vector2* position;
 	Rect* sourceRect;
-	int testing;
-	int testing2;
 };
 
 struct Button
@@ -55,17 +54,6 @@ struct Menu
 	Button* startButton;
 	Button* optionsButton;
 	Button* quitButton;
-};
-
-struct Player
-{
-	int direction;
-	int currentFrameTime;
-	int frame;
-	LifeUI* lifeUI;
-	Texture2D* texture;
-	Vector2* position;
-	Rect* sourceRect;
 };
 
 struct GameManager
