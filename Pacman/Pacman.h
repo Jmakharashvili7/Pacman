@@ -37,6 +37,7 @@ struct PowerUp
 	Vector2* position;
 	Rect* sourceRect;
 	int testing;
+	int testing2;
 };
 
 struct Button
