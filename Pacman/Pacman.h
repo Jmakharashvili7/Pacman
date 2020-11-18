@@ -16,6 +16,11 @@
 // Just need to include main header file
 #include "S2D/S2D.h"
 
+// Include all the classes
+#include "EnemyGhost.h"
+#include "PlayerClass.h"
+#include "PowerUp.h"
+
 // Reduces the amount of typing by including all classes in S2D namespace
 using namespace S2D;
 
@@ -24,28 +29,6 @@ struct LifeUI
 	int amount;
 	Texture2D* texture;
 	Vector2* positions[PACMANLIVES];
-	Rect* sourceRect;
-};
-
-struct Player
-{
-	int direction;
-	int frameCount;
-	int frameTime;
-	int currentFrameTime;
-	LifeUI* lifeUI;
-	Texture2D* texture;
-	Vector2* position;
-	Rect* sourceRect;
-};
-
-struct PowerUp
-{
-	int frameCount;
-	int frameTime;
-	int currentFrameTime;
-	Texture2D* texture;
-	Vector2* position;
 	Rect* sourceRect;
 };
 
@@ -75,16 +58,6 @@ struct GameManager
 	bool pKeyDown;
 };
 
-struct Enemy 
-{
-	int frameCount;
-	int frameTime;
-	int currentFrameTime;
-	Texture2D* texture;
-	Vector2* position;
-	Rect* sourceRect;
-};
-
 // Declares the Pacman class which inherits from the Game class.
 // This allows us to overload the Game class methods to help us
 // load content, draw and update our game.
@@ -92,29 +65,21 @@ class Pacman : public Game
 {
 private:
 	// Check Methods
-	void CheckInput(int elapsedtime, Input::KeyboardState* state, Input::MouseState* mouseState);
 	void CheckPaused(Input::KeyboardState* state, Input::Keys pauseKey);
 	bool CheckMenuButtonPress(Input::MouseState* mouseState, Rect* button);
 	void CheckViewportCollision();
 
 	// Update Methods
-	void UpdatePacman(int elapsedTime);
 	void UpdatePowerUp(PowerUp* powerUp, int elapsedTime);
 
-	// Pacman Methods
-	void PacmanHit(int elapsedTime, Player* pacman);
-
 	// Struct declarations
-	Player* _pacman;
+	PlayerClass* _pacman;
+	EnemyGhost* _enemyGhost;
+	LifeUI* lifeUI;
 	PowerUp* _munchies[MUNCHIECOUNT];
 	PowerUp* _cherries[CHERRYCOUNT];
 	Menu* _menu;
-	GameManager* _game;
-
-	// Data for Constant Game Variables
-	const float _cPacmanSpeed;
-	const int _cPacmanFrameTime;
-	const int _cMunchieFrameTime;
+	GameManager* _gameManager;
 
 	// Screen Parameters
 	float screenHeight;
@@ -141,5 +106,5 @@ public:
 	void virtual Draw(int elapsedTime);
 
 	/// <summary> Checks if there is collision between two objects. </summary>
-	bool CheckCollision(Player* pacman, PowerUp* powerUp);
+	bool CheckCollision(PlayerClass* pacman, PowerUp* powerUp);
 };
