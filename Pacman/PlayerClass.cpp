@@ -5,9 +5,11 @@ PlayerClass::PlayerClass()
 {
 	s_frameTime = 250;
 	s_pacmanSpeed = 0.1f;
+	currentLives = PACMANLIVES;
 	direction = 0;
 	currentFrameTime = 0;
 	frameCount = 0;
+
 	// Load Pacman texture
 	texture = new Texture2D();
 	texture->Load("Textures/Pacman.tga", false);

@@ -10,7 +10,6 @@
 
 #define MUNCHIECOUNT 50
 #define CHERRYCOUNT 4
-#define PACMANLIVES 3
 #define ENEMYCOUNT 4
 
 // Just need to include main header file
@@ -32,22 +31,20 @@ struct LifeUI
 	Rect* sourceRect;
 };
 
+// Button Struct and Destructor
 struct Button
 {
+	~Button();
 	Texture2D* background;
 	Rect* rectangle;
 	Vector2* position;
 };
-
-struct Menu
+Button::~Button()
 {
-	Texture2D* background;
-	Rect* Rectangle;	
-	Vector2* titlePosition;
-	Button* startButton;
-	Button* optionsButton;
-	Button* quitButton;
-};
+	delete background;
+	delete rectangle;
+	delete position;
+}
 
 struct GameManager
 {

@@ -1,4 +1,5 @@
 #pragma once
+#define PACMANLIVES 3
 
 // Just need to include main header file
 #include "S2D/S2D.h"
@@ -13,6 +14,7 @@ public:
 	~PlayerClass();
 	int direction;
 	int frameCount;
+	int currentLives;
 	float s_pacmanSpeed;
 	int s_frameTime;
 	int currentFrameTime;

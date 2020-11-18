@@ -76,8 +76,6 @@ Pacman::~Pacman()
 	delete _menu->quitButton->rectangle;
 	delete _menu->quitButton;
 
-	delete _pacman;
-
 	// Clean up Pacman Lives UI
 	delete lifeUI->texture;
 	delete lifeUI->sourceRect;
@@ -214,7 +212,7 @@ void Pacman::Draw(int elapsedTime)
 		SpriteBatch::Draw(_pacman->texture, _pacman->position, _pacman->sourceRect); // Draws Pacman
 
 		// Draw Pacman Health UI
-		for (i = 0; i < lifeUI->amount; i++)
+		for (i = 0; i < _pacman->currentLives; i++)
 			SpriteBatch::Draw(lifeUI->texture, lifeUI->positions[i], lifeUI->sourceRect);
 
 		SpriteBatch::DrawString(positionStream.str().c_str(), _stringPosition, Color::Green); // Draws Position String

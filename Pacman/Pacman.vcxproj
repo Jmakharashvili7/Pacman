@@ -86,12 +86,14 @@
   <ItemGroup>
     <ClCompile Include="EnemyGhost.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Pacman.cpp" />
     <ClCompile Include="PlayerClass.cpp" />
     <ClCompile Include="PowerUp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EnemyGhost.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Pacman.h" />
     <ClInclude Include="PlayerClass.h" />
     <ClInclude Include="PowerUp.h" />
