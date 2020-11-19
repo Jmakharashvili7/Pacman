@@ -19,6 +19,8 @@
 #include "EnemyGhost.h"
 #include "PlayerClass.h"
 #include "PowerUp.h"
+#include "Menu.h"
+#include "GameManager.h"
 
 // Reduces the amount of typing by including all classes in S2D namespace
 using namespace S2D;
@@ -31,30 +33,6 @@ struct LifeUI
 	Rect* sourceRect;
 };
 
-// Button Struct and Destructor
-struct Button
-{
-	~Button();
-	Texture2D* background;
-	Rect* rectangle;
-	Vector2* position;
-};
-Button::~Button()
-{
-	delete background;
-	delete rectangle;
-	delete position;
-}
-
-struct GameManager
-{
-	int score;
-	bool started;
-	bool paused;
-	bool pauseMenu;
-	bool pKeyDown;
-};
-
 // Declares the Pacman class which inherits from the Game class.
 // This allows us to overload the Game class methods to help us
 // load content, draw and update our game.
@@ -63,7 +41,6 @@ class Pacman : public Game
 private:
 	// Check Methods
 	void CheckPaused(Input::KeyboardState* state, Input::Keys pauseKey);
-	bool CheckMenuButtonPress(Input::MouseState* mouseState, Rect* button);
 	void CheckViewportCollision();
 
 	// Update Methods

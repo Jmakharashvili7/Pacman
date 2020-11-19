@@ -85,6 +85,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EnemyGhost.cpp" />
+    <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Pacman.cpp" />
@@ -93,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EnemyGhost.h" />
+    <ClInclude Include="GameManager.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Pacman.h" />
     <ClInclude Include="PlayerClass.h" />

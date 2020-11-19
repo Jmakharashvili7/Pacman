@@ -5,20 +5,7 @@
 
 Pacman::Pacman(int argc, char* argv[]) : Game(argc, argv)
 {
-	int i; //Local variables
-
-	// Initialise Menu
-	_menu = new Menu();
-	_menu->startButton = new Button();
-	_menu->optionsButton = new Button();
-	_menu->quitButton = new Button();
-
-	// Initialise GameManager
 	_gameManager = new GameManager();
-	_gameManager->score = 0;
-	_gameManager->paused = false;
-	_gameManager->started = false;
-	_gameManager->pKeyDown = false;
 
 	//Initialise important Game aspects
 	Graphics::Initialise(argc, argv, this, 1080, 720, false, 25, 25, "Pacman", 60);
@@ -32,9 +19,11 @@ Pacman::~Pacman()
 {
 	int i; // Local Variable
 
+	// Clean up the classes
+	delete _gameManager;
 	delete _enemyGhost;
-
 	delete _pacman;
+	delete _menu;
 
 	// Clean up munchies
 	for (i = 0; i < MUNCHIECOUNT; i++)
@@ -50,39 +39,12 @@ Pacman::~Pacman()
 	}
 	delete[] _cherries;
 
-	// Clean up String positions
-	delete _stringPosition;
-	delete _scorePosition;
-	delete _menu->titlePosition;
-	delete _menu->optionsButton->position;
-	delete _menu->quitButton->position;
-
-	//Clean up Menu and Buttons
-	delete _menu->background;
-	delete _menu->Rectangle;
-
-	delete _menu->startButton->background;
-	delete _menu->startButton->position;
-	delete _menu->startButton->rectangle;
-	delete _menu->startButton;
-
-	delete _menu->optionsButton->background;
-	delete _menu->optionsButton->position;
-	delete _menu->optionsButton->rectangle;
-	delete _menu->optionsButton;
-
-	delete _menu->quitButton->background;
-	delete _menu->quitButton->position;
-	delete _menu->quitButton->rectangle;
-	delete _menu->quitButton;
-
 	// Clean up Pacman Lives UI
 	delete lifeUI->texture;
 	delete lifeUI->sourceRect;
 	delete lifeUI;
 	for(i = 0; i < PACMANLIVES; i++)
 		delete lifeUI->positions[i];
-
 }
 
 void Pacman::LoadContent()
@@ -134,40 +96,7 @@ void Pacman::LoadContent()
 		_cherries[i]->position = new Vector2((rand() % Graphics::GetViewportWidth()), (rand() % Graphics::GetViewportHeight()));
 	}
 
-#pragma region MenuLoad
-
-	float screenMidWidth = Graphics::GetViewportWidth() / 2.0f;
-	float screenMidHeight = Graphics::GetViewportHeight() / 2.0f;
-
-	// Set string position
-	_stringPosition = new Vector2(10.0f, 25.0f);
-	_scorePosition = new Vector2(10.0f, 50.0f);
-
-	// Set Menu Parameters
-	_menu->background = new Texture2D();
-	_menu->background->Load("Textures/Transparency.png", false);
-	_menu->titlePosition = new Vector2(screenMidWidth - 20.0f, screenMidHeight);
-	_menu->Rectangle = new Rect(0.0f, 0.0f, Graphics::GetViewportWidth(), Graphics::GetViewportHeight());
-
-	// Setup start button
-	_menu->startButton->background = new Texture2D();
-	_menu->startButton->background->Load("Textures/Transparency.png", false);
-	_menu->startButton->position = new Vector2(screenMidWidth - 20.0f, screenMidHeight + 25.0f);
-	_menu->startButton->rectangle = new Rect(_menu->startButton->position->X, _menu->startButton->position->Y, 50.0f, -15.0f);
-
-	// Setup options button
-	_menu->optionsButton->background = new Texture2D();
-	_menu->optionsButton->background->Load("Textures/Transparency.png", false);
-	_menu->optionsButton->position = new Vector2(screenMidWidth - 20.0f, screenMidHeight + 50.0f);
-	_menu->optionsButton->rectangle = new Rect(_menu->optionsButton->position->X, _menu->optionsButton->position->Y, 65.0, -15.0f);
-
-	// Setup quit button
-	_menu->quitButton->background = new Texture2D();
-	_menu->quitButton->background->Load("Textures/Transparency.png", false);
-	_menu->quitButton->position = new Vector2(screenMidWidth - 20.0f, screenMidHeight + 75.0f);
-	_menu->quitButton->rectangle = new Rect(_menu->quitButton->position->X, _menu->quitButton->position->Y, 50.0, -15.0f);
-
-#pragma endregion Load the menu
+	_menu = new Menu();
 }
 
 void Pacman::Draw(int elapsedTime)
@@ -215,10 +144,9 @@ void Pacman::Draw(int elapsedTime)
 		for (i = 0; i < _pacman->currentLives; i++)
 			SpriteBatch::Draw(lifeUI->texture, lifeUI->positions[i], lifeUI->sourceRect);
 
-		SpriteBatch::DrawString(positionStream.str().c_str(), _stringPosition, Color::Green); // Draws Position String
-		SpriteBatch::DrawString(scoreStream.str().c_str(), _scorePosition, Color::Yellow); // Draws Score String
+		SpriteBatch::DrawString(scoreStream.str().c_str(), _menu->scorePosition, Color::Yellow); // Draws Score String
 
-		SpriteBatch::Draw(_enemyGhost->texture, _enemyGhost->position, _enemyGhost->sourceRect);
+		SpriteBatch::Draw(_enemyGhost->texture, _enemyGhost->position, _enemyGhost->sourceRect); // Draw ghost
 	}
 
 	// Draw pause menu
@@ -243,9 +171,9 @@ void Pacman::Update(int elapsedTime)
 
 	if (!_gameManager->started)
 	{
-		if (CheckMenuButtonPress(mouseState, _menu->startButton->rectangle) && mouseState->LeftButton == Input::ButtonState::PRESSED)
+		if (_menu->CheckMenuButtonPress(mouseState, _menu->startButton->rectangle) && mouseState->LeftButton == Input::ButtonState::PRESSED)
 			_gameManager->started = true;
-		if (CheckMenuButtonPress(mouseState, _menu->quitButton->rectangle) && mouseState->LeftButton == Input::ButtonState::PRESSED)
+		if (_menu->CheckMenuButtonPress(mouseState, _menu->quitButton->rectangle) && mouseState->LeftButton == Input::ButtonState::PRESSED)
 			printf("Quit");
 	}
 	else
@@ -354,14 +282,5 @@ bool Pacman::CheckCollision(PlayerClass* pacman, PowerUp* powerUp)
 		powerUp->position->Y + powerUp->sourceRect->Height >= pacman->position->Y);
 
 	// If both are true objects collided
-	return collisionX && collisionY;
-}
-
-bool Pacman::CheckMenuButtonPress(Input::MouseState* mouseState, Rect* button)
-{
-	// Check x-axis collision
-	bool collisionX = (mouseState->X > button->X && mouseState->X < button->Width + button->X);
-	bool collisionY = (mouseState->Y < button->Y&& mouseState->Y > button->Height + button->Y);
-
 	return collisionX && collisionY;
 }
