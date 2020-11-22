@@ -17,5 +17,6 @@ public:
 	Vector2* position;
 	Rect* sourceRect;
 	Texture2D* texture;
+	void UpdatePowerUp(int elapsedTime);
 };
 

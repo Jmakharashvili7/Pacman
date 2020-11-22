@@ -12,21 +12,32 @@ class PlayerClass
 public:
 	PlayerClass();
 	~PlayerClass();
+	// General pacman Variables
 	int direction;
-	int frameCount;
 	int currentLives;
-	float s_pacmanSpeed;
-	int s_frameTime;
-	int currentFrameTime;
+	int timePassedHit;
+	float speedModifier;
+	bool dead;
+	bool invisible;
+	// Variables for drawing pacman
 	Texture2D* texture;
 	Vector2* position;
 	Rect* sourceRect;
+private:
+	// Frame Variables
+	int s_frameTime;
+	int currentFrame;
+	int currentFrameTime;
+	// Invis Variables
+	int currentInvisCount;
+	int invisCount;
 public:
 	// Pacman Methods
-	void PacmanHit(int elapsedTime, PlayerClass* _pacman);
+	void PacmanHit(int elapsedTime);
 	void UpdatePacman(int elapsedTime);
 	void CheckInput(int elapsedTime, Input::KeyboardState* state);
 };
+
 
 
 

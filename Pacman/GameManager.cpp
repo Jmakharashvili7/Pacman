@@ -1,4 +1,5 @@
 #include "GameManager.h"
+#include "Pacman.h"
 
 GameManager::GameManager()
 {

@@ -10,7 +10,7 @@
 
 #define MUNCHIECOUNT 50
 #define CHERRYCOUNT 4
-#define ENEMYCOUNT 4
+#define GHOSTCOUNT 4
 
 // Just need to include main header file
 #include "S2D/S2D.h"
@@ -43,15 +43,12 @@ private:
 	void CheckPaused(Input::KeyboardState* state, Input::Keys pauseKey);
 	void CheckViewportCollision();
 
-	// Update Methods
-	void UpdatePowerUp(PowerUp* powerUp, int elapsedTime);
-
 	// Struct declarations
 	PlayerClass* _pacman;
 	EnemyGhost* _enemyGhost;
-	LifeUI* lifeUI;
 	PowerUp* _munchies[MUNCHIECOUNT];
 	PowerUp* _cherries[CHERRYCOUNT];
+	LifeUI* lifeUI;
 	Menu* _menu;
 	GameManager* _gameManager;
 
@@ -81,4 +78,5 @@ public:
 
 	/// <summary> Checks if there is collision between two objects. </summary>
 	bool CheckCollision(PlayerClass* pacman, PowerUp* powerUp);
+	bool CheckCollision(PlayerClass* pacman, EnemyGhost* ghost);
 };

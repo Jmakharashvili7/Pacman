@@ -12,8 +12,12 @@ public:
 	EnemyGhost();
 	~EnemyGhost();
 	int direction;
+	float speed;
 	Vector2* position;
 	Texture2D* texture;
 	Rect* sourceRect;
+public:
+	void GhostMovement(int elapsedTime);
+	void GhostAnimation();
 };
 

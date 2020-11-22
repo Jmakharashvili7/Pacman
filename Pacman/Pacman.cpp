@@ -138,7 +138,9 @@ void Pacman::Draw(int elapsedTime)
 		for (i = 0; i < CHERRYCOUNT; i++)
 			SpriteBatch::Draw(_cherries[i]->texture, _cherries[i]->position, _cherries[i]->sourceRect); // Draws Cherries
 
-		SpriteBatch::Draw(_pacman->texture, _pacman->position, _pacman->sourceRect); // Draws Pacman
+		// draw pacman if he isnt invisible
+		if (!_pacman->invisible)
+		SpriteBatch::Draw(_pacman->texture, _pacman->position, _pacman->sourceRect); 
 
 		// Draw Pacman Health UI
 		for (i = 0; i < _pacman->currentLives; i++)
@@ -174,13 +176,17 @@ void Pacman::Update(int elapsedTime)
 		if (_menu->CheckMenuButtonPress(mouseState, _menu->startButton->rectangle) && mouseState->LeftButton == Input::ButtonState::PRESSED)
 			_gameManager->started = true;
 		if (_menu->CheckMenuButtonPress(mouseState, _menu->quitButton->rectangle) && mouseState->LeftButton == Input::ButtonState::PRESSED)
-			printf("Quit");
+			exit(0);
+	}
+	if (_pacman->dead)
+	{
+		_pacman->PacmanHit(elapsedTime);
 	}
 	else
 	{
 		CheckPaused(keyboardState, Input::Keys::P);
 
-		if (!_gameManager->paused)
+		if (!_gameManager->paused && !_pacman->dead)
 		{
 			CheckViewportCollision();
 
@@ -189,7 +195,7 @@ void Pacman::Update(int elapsedTime)
 
 			for (i = 0; i < MUNCHIECOUNT; i++)
 			{
-				UpdatePowerUp(_munchies[i], elapsedTime);
+				_munchies[i]->UpdatePowerUp(elapsedTime);
 				if (CheckCollision(_pacman, _munchies[i]))
 				{
 					_munchies[i]->position->X = -100;
@@ -199,7 +205,7 @@ void Pacman::Update(int elapsedTime)
 
 			for (i = 0; i < CHERRYCOUNT; i++)
 			{
-				UpdatePowerUp(_cherries[i], elapsedTime);
+				_cherries[i]->UpdatePowerUp(elapsedTime);
 				if (CheckCollision(_pacman, _cherries[i]))
 				{
 					_cherries[i]->position->X = -100;
@@ -207,36 +213,20 @@ void Pacman::Update(int elapsedTime)
 				}
 			}
 
-			/*for (i = 0; i < ENEMYCOUNT; i++)
-			{
-				if (CollisionCheck(_pacman, _ghosts[i]))
+			//for (i = 0; i < GHOSTCOUNT; i++)
+			//{
+				_enemyGhost->GhostMovement(elapsedTime);
+				_enemyGhost->GhostAnimation();
+				if (CheckCollision(_pacman, _enemyGhost))
 				{
-					_pacman->lifeUI->amount--;
-					_game->paused = true;
+					_pacman->currentLives--;
+					_pacman->dead = true;
+					_enemyGhost->position->X = -100;
 				}
-			} */
+			//} 
 		}
 	}
 }	
-	
-void Pacman::UpdatePowerUp(PowerUp* powerUp, int elapsedTime)
-{
-	powerUp->currentFrameTime += elapsedTime;
-
-	powerUp->sourceRect->X = powerUp->sourceRect->Width * powerUp->frameCount; // Change Munchie Frame
-
-	// Munchie Animation Cycle
-	if (powerUp->currentFrameTime > powerUp->frameTime)
-	{
-		powerUp->frameCount++;
-
-		// If we're at the last frame cycle back to start
-		if (powerUp->frameCount >= 2)
-			powerUp->frameCount = 0;
-
-		powerUp->currentFrameTime = 0; // Reset Frame Time
-	}
-}
 
 void Pacman::CheckPaused(Input::KeyboardState* state, Input::Keys pauseKey)
 {
@@ -255,19 +245,19 @@ void Pacman::CheckViewportCollision()
 {
 
 	// Checks if the Pacman hit right edge
-	if (_pacman->position->X + _pacman->sourceRect->Width > Graphics::GetViewportWidth())
+	if (_pacman->position->X + _pacman->sourceRect->Width >= Graphics::GetViewportWidth())
 		_pacman->position->X = 0;
 
 	// Checks if the Pacman hit left edge
-	if (_pacman->position->X < 0)
+	if (_pacman->position->X <= 0)
 		_pacman->position->X = Graphics::GetViewportWidth() - _pacman->sourceRect->Width;
 
 	// Checks if the Pacman hit bottom edge
-	if (_pacman->position->Y + _pacman->sourceRect->Height > Graphics::GetViewportHeight())
+	if (_pacman->position->Y + _pacman->sourceRect->Height >= Graphics::GetViewportHeight())
 		_pacman->position->Y = 0;
 
 	// Checks if the Pacman hit top edge
-	if (_pacman->position->Y < 0)
+	if (_pacman->position->Y <= 0)
 		_pacman->position->Y = Graphics::GetViewportHeight() - _pacman->sourceRect->Height;
 }
 
@@ -284,3 +274,18 @@ bool Pacman::CheckCollision(PlayerClass* pacman, PowerUp* powerUp)
 	// If both are true objects collided
 	return collisionX && collisionY;
 }
+
+bool Pacman::CheckCollision(PlayerClass* pacman, EnemyGhost* ghost)
+{
+	// Check x-axis collision
+	bool collisionX = (pacman->position->X + pacman->sourceRect->Width >= ghost->position->X &&
+		ghost->position->X + ghost->sourceRect->Width >= pacman->position->X);
+
+	// Check y-axis collision
+	bool collisionY = (pacman->position->Y + pacman->sourceRect->Height >= ghost->position->Y &&
+		ghost->position->Y + ghost->sourceRect->Height >= pacman->position->Y);
+
+	// If both are true objects collided
+	return collisionX && collisionY;
+}
+
