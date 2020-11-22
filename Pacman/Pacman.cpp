@@ -245,19 +245,19 @@ void Pacman::CheckViewportCollision()
 {
 
 	// Checks if the Pacman hit right edge
-	if (_pacman->position->X + _pacman->sourceRect->Width >= Graphics::GetViewportWidth())
+	if (_pacman->position->X + _pacman->sourceRect->Width > Graphics::GetViewportWidth())
 		_pacman->position->X = 0;
 
 	// Checks if the Pacman hit left edge
-	if (_pacman->position->X <= 0)
+	if (_pacman->position->X < 0)
 		_pacman->position->X = Graphics::GetViewportWidth() - _pacman->sourceRect->Width;
 
 	// Checks if the Pacman hit bottom edge
-	if (_pacman->position->Y + _pacman->sourceRect->Height >= Graphics::GetViewportHeight())
+	if (_pacman->position->Y + _pacman->sourceRect->Height > Graphics::GetViewportHeight())
 		_pacman->position->Y = 0;
 
 	// Checks if the Pacman hit top edge
-	if (_pacman->position->Y <= 0)
+	if (_pacman->position->Y < 0)
 		_pacman->position->Y = Graphics::GetViewportHeight() - _pacman->sourceRect->Height;
 }
 

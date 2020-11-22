@@ -7,7 +7,7 @@ PlayerClass::PlayerClass()
 	currentLives = PACMANLIVES;
 	direction = 0;
 	timePassedHit = 0;
-	speedModifier = 1.5f;
+	speedModifier = 0.5f;
 	dead = false;
 
 	// Initialise Frame Variables
@@ -80,28 +80,28 @@ void PlayerClass::UpdatePacman(int elapsedTime)
 
 void PlayerClass::CheckInput(int elapsedTime, Input::KeyboardState* state)
 {
-	float _pacmanSpeed = speedModifier * elapsedTime;
+	float pacmanSpeed = speedModifier * elapsedTime;
 
 	// Pacman Movement 
 	if (state->IsKeyDown(Input::Keys::D))
 	{
-		position->X += speedModifier; // Move Right
+		position->X += pacmanSpeed; // Move Right
 		direction = 0; // Face Right
 	}
 	else if (state->IsKeyDown(Input::Keys::S))
 	{
-		position->Y += speedModifier; // Move Down
+		position->Y += pacmanSpeed; // Move Down
 		direction = 1; // Face Down
 	}
 	else if (state->IsKeyDown(Input::Keys::A))
 	{
-		position->X -= speedModifier; // Move Left
+		position->X -= pacmanSpeed; // Move Left
 		direction = 2; // Face Left
 
 	}
 	else if (state->IsKeyDown(Input::Keys::W))
 	{
-		position->Y -= speedModifier; // Move Up
+		position->Y -= pacmanSpeed; // Move Up
 		direction = 3; // Face Up
 	}
 }
