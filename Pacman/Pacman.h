@@ -11,16 +11,23 @@
 #define MUNCHIECOUNT 50
 #define CHERRYCOUNT 4
 #define GHOSTCOUNT 4
+#define TILECOUNTX 27
+#define TILECOUNTY 20
 
-// Just need to include main header file
-#include "S2D/S2D.h"
+// Include all the headers
+#include <sstream>
+#include <ctime>
+#include <iostream>
+#include <vector>
 
 // Include all the classes
+#include "S2D/S2D.h"
 #include "EnemyGhost.h"
 #include "PlayerClass.h"
 #include "PowerUp.h"
 #include "Menu.h"
 #include "GameManager.h"
+#include "TileManager.h"
 
 // Reduces the amount of typing by including all classes in S2D namespace
 using namespace S2D;
@@ -43,15 +50,15 @@ private:
 	void CheckPaused(Input::KeyboardState* state, Input::Keys pauseKey);
 	void CheckViewportCollision();
 
-	// Struct declarations
+	// class declarations
 	PlayerClass* _pacman;
 	EnemyGhost* _enemyGhost;
 	PowerUp* _munchies[MUNCHIECOUNT];
 	PowerUp* _cherries[CHERRYCOUNT];
-	LifeUI* lifeUI;
+	LifeUI* _lifeUI;
 	Menu* _menu;
 	GameManager* _gameManager;
-
+	
 	// Screen Parameters
 	float screenHeight;
 	float screenWidth;
@@ -63,6 +70,11 @@ private:
 public:
 	/// <summary> Constructs the Pacman class. </summary>
 	Pacman(int argc, char* argv[]);
+
+	// setup nodes
+	Node* nodes = nullptr;
+	Node* nodeStart = nullptr;
+	Node* nodeEnd = nullptr;
 
 	/// <summary> Destroys any data associated with Pacman class. </summary>
 	virtual ~Pacman();

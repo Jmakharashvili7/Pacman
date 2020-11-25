@@ -1,5 +1,7 @@
 #include "PlayerClass.h"
+
 #include "iostream"
+#include "Pacman.h"
 
 PlayerClass::PlayerClass()
 {
@@ -7,7 +9,7 @@ PlayerClass::PlayerClass()
 	currentLives = PACMANLIVES;
 	direction = 0;
 	timePassedHit = 0;
-	speedModifier = 0.5f;
+	speedModifier = 0.3f;
 	dead = false;
 
 	// Initialise Frame Variables
@@ -23,8 +25,9 @@ PlayerClass::PlayerClass()
 	// Load Pacman texture and location
 	texture = new Texture2D();
 	texture->Load("Textures/Pacman.tga", false);
-	position = new Vector2(350.0f, 350.0f);
-	sourceRect = new Rect(0.0f, 0.0f, 32, 32);
+	rectPosition = new Vector2(350.0f, 350.0f);
+	sourceRect = new Rect(rectPosition->X, rectPosition->Y, 32.0f, 32.0f);
+	position = new Vector2(sourceRect->Center());
 }
 
 void PlayerClass::PacmanHit(int elapsedTime)
@@ -58,6 +61,25 @@ void PlayerClass::PacmanHit(int elapsedTime)
 	}
 }
 
+void PlayerClass::SetCurrentNode(Node nodes[])
+{
+	// Check collision against every node
+	for (int x = 0; x < TILECOUNTX; x++)
+		for (int y = 0; y < TILECOUNTY; y++)
+		{
+			// Check X collision if no collision we can skip this tile
+			if (position->X < nodes[y * TILECOUNTX + x].position->X + nodes[y * TILECOUNTX + x].sourceRect->Width
+				&& position->X > nodes[y * TILECOUNTX + x].position->X);
+			else
+				break;
+
+			// check Y collision
+			if (position->Y < nodes[y * TILECOUNTX + x].position->Y + nodes[y * TILECOUNTX + x].sourceRect->Height
+				&& position->Y > nodes[y * TILECOUNTX + x].position->Y)
+				currentNode = &nodes[y * TILECOUNTX + x];
+		}
+}
+
 void PlayerClass::UpdatePacman(int elapsedTime)
 {
 	currentFrameTime += elapsedTime;
@@ -85,23 +107,27 @@ void PlayerClass::CheckInput(int elapsedTime, Input::KeyboardState* state)
 	// Pacman Movement 
 	if (state->IsKeyDown(Input::Keys::D))
 	{
-		position->X += pacmanSpeed; // Move Right
+		rectPosition->X += pacmanSpeed; // Move Right
+		position->X += pacmanSpeed;
 		direction = 0; // Face Right
 	}
 	else if (state->IsKeyDown(Input::Keys::S))
 	{
-		position->Y += pacmanSpeed; // Move Down
+		rectPosition->Y += pacmanSpeed; // Move Down
+		position->Y += pacmanSpeed;
 		direction = 1; // Face Down
 	}
 	else if (state->IsKeyDown(Input::Keys::A))
 	{
-		position->X -= pacmanSpeed; // Move Left
+		rectPosition->X -= pacmanSpeed; // Move Left
+		position->X -= pacmanSpeed;
 		direction = 2; // Face Left
 
 	}
 	else if (state->IsKeyDown(Input::Keys::W))
 	{
-		position->Y -= pacmanSpeed; // Move Up
+		rectPosition->Y -= pacmanSpeed; // Move Up
+		position->Y -= pacmanSpeed;
 		direction = 3; // Face Up
 	}
 }
@@ -111,5 +137,5 @@ PlayerClass::~PlayerClass()
 	// Clean up Pacman
 	delete texture;
 	delete sourceRect;
-	delete position;
+	delete rectPosition;
 }

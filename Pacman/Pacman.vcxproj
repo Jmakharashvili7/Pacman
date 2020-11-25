@@ -91,6 +91,7 @@
     <ClCompile Include="Pacman.cpp" />
     <ClCompile Include="PlayerClass.cpp" />
     <ClCompile Include="PowerUp.cpp" />
+    <ClCompile Include="TileManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EnemyGhost.h" />
@@ -99,6 +100,7 @@
     <ClInclude Include="Pacman.h" />
     <ClInclude Include="PlayerClass.h" />
     <ClInclude Include="PowerUp.h" />
+    <ClInclude Include="TileManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
