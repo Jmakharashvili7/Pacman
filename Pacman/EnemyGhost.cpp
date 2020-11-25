@@ -148,8 +148,13 @@ bool EnemyGhost::solve_Astar(Node nodes[])
 
 EnemyGhost::~EnemyGhost()
 {
+	// delete position and texture variables
 	delete texture;
 	delete rectPosition;
 	delete sourceRect;
+	delete position;
+	// delete node variables
+	delete nodeStart;
+	delete nodeGoal;
 }
 
