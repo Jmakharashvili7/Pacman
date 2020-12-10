@@ -8,6 +8,8 @@
 // Reduces the amount of typing by including all classes in S2D namespace
 using namespace S2D;
 
+enum PacmanDirection { Right, Down, Left, Up };	
+
 class PlayerClass
 {
 public:
@@ -15,13 +17,13 @@ public:
 	~PlayerClass();
 
 	// General pacman Variables
-	int direction;
+	PacmanDirection direction;
 	int currentLives;
 	int timePassedHit;
 	float speedModifier;
 	bool dead;
 	bool invisible;
-	Node* currentNode;
+	Tile* currentTile;
 
 	// Variables for drawing pacman
 	Texture2D* texture;
@@ -33,6 +35,7 @@ private:
 	int s_frameTime;
 	int currentFrame;
 	int currentFrameTime;
+
 	// Invis Variables
 	int currentInvisCount;
 	int invisCount;
@@ -40,8 +43,9 @@ public:
 	// Pacman Methods
 	void PacmanHit(int elapsedTime);
 	void UpdatePacman(int elapsedTime);
-	void SetCurrentNode(Node nodes[]);
-	void CheckInput(int elapsedTime, Input::KeyboardState* state);
+	void SetCurrentTile(Tile nodes[]);
+	void Movement(int elapsedTime, Tile nodes[]);
+	void CheckInput(Input::KeyboardState* state);
 };
 
 

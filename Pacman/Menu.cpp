@@ -59,7 +59,7 @@ bool Menu::CheckMenuButtonPress(Input::MouseState* mouseState, Rect* button)
 {
 	// Check x-axis collision
 	bool collisionX = (mouseState->X > button->X && mouseState->X < button->Width + button->X);
-	bool collisionY = (mouseState->Y < button->Y&& mouseState->Y > button->Height + button->Y);
+	bool collisionY = (mouseState->Y < button->Y && mouseState->Y > button->Height + button->Y);
 
 	return collisionX && collisionY;
 }

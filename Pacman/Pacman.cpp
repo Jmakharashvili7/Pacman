@@ -2,10 +2,9 @@
 
 Pacman::Pacman(int argc, char* argv[]) : Game(argc, argv)
 {
-	_gameManager = new GameManager();
-
 	//Initialise important Game aspects
-	Graphics::Initialise(argc, argv, this, 720, 520, true, 25, 25, "Pacman", 60);
+	Audio::Initialise();
+	Graphics::Initialise(argc, argv, this, 729, 810, true, 25, 25, "Pacman", 60);
 	Input::Initialise();
 
 	// Start the Game Loop - This calls Update and Draw in game loop
@@ -18,9 +17,10 @@ Pacman::~Pacman()
 
 	// Clean up the classes
 	delete _gameManager;
-	delete _enemyGhost;
+	delete _redGhost;
 	delete _pacman;
 	delete _menu;
+	delete _pop;
 
 	// Clean up munchies
 	for (i = 0; i < MUNCHIECOUNT; i++)
@@ -51,41 +51,73 @@ void Pacman::LoadContent()
 	int i; // local variable
 
 	// initialize nodes
-	nodes = new Node[TILECOUNTX * TILECOUNTY];
+	_tiles = new Tile[TILECOUNTX * TILECOUNTY];
 	for (int x = 0; x < TILECOUNTX; x++)
 		for (int y = 0; y < TILECOUNTY; y++)
 		{
-			nodes[y * TILECOUNTX + x].position = new Vector2(x*27, y*27);
-			nodes[y * TILECOUNTX + x].sourceRect = new Rect(nodes[y * TILECOUNTX + x].position->X, nodes[y * TILECOUNTX + x].position->Y, 27.0f, 27.0f);
-			nodes[y * TILECOUNTX + x].wall = false;
-			nodes[y * TILECOUNTX + x].parent = nullptr;
-			nodes[y * TILECOUNTX + x].visited = false;
+			float sizeX  = x*27, sizeY = y*27;
+			_tiles[y * TILECOUNTX + x].positionInArray = y * TILECOUNTX + x;
+			_tiles[y * TILECOUNTX + x].rectPosition = new Vector2(sizeX, sizeY);
+			_tiles[y * TILECOUNTX + x].sourceRect = new Rect(0.0f, 0.0f, 27.0f, 27.0f);
+			_tiles[y * TILECOUNTX + x].position = new Vector2(sizeX + (_tiles[y * TILECOUNTX + x].sourceRect->Width / 2),
+															sizeY + (_tiles[y * TILECOUNTX + x].sourceRect->Height / 2));
+			_tiles[y * TILECOUNTX + x].wall = false;
+			_tiles[y * TILECOUNTX + x].parent = nullptr;
+			_tiles[y * TILECOUNTX + x].visited = false;
 		}
 
-	// Create connections - in this case nodes are on a regular grid
+	// Setup neighbour nodes
 	for (int x = 0; x < TILECOUNTX; x++)
 		for (int y = 0; y < TILECOUNTY; y++)
 		{
 			if (y > 0)
-				nodes[y * TILECOUNTX + x].nodeNeighbours.push_back(&nodes[(y - 1) * TILECOUNTX + (x + 0)]);
+				_tiles[y * TILECOUNTX + x].nodeNeighbours.push_back(&_tiles[(y - 1) * TILECOUNTX + (x + 0)]);
 			if (y < TILECOUNTY - 1)
-				nodes[y * TILECOUNTX + x].nodeNeighbours.push_back(&nodes[(y + 1) * TILECOUNTX + (x + 0)]);
+				_tiles[y * TILECOUNTX + x].nodeNeighbours.push_back(&_tiles[(y + 1) * TILECOUNTX + (x + 0)]);
 			if (x > 0)
-				nodes[y * TILECOUNTX + x].nodeNeighbours.push_back(&nodes[(y + 0) * TILECOUNTX + (x - 1)]);
+				_tiles[y * TILECOUNTX + x].nodeNeighbours.push_back(&_tiles[(y + 0) * TILECOUNTX + (x - 1)]);
 			if (x < TILECOUNTX - 1)
-				nodes[y * TILECOUNTX + x].nodeNeighbours.push_back(&nodes[(y + 0) * TILECOUNTX + (x + 1)]);
+				_tiles[y * TILECOUNTX + x].nodeNeighbours.push_back(&_tiles[(y + 0) * TILECOUNTX + (x + 1)]);
 		}
 
+	#pragma region setting up walls
+	// Draw top wall excluding the first and last block
+	for (int x = 1; x < TILECOUNTX - 1; x++)
+		for (int y = 0; y < 1; y++)
+			_tiles[y * TILECOUNTX + x].wall = true;
 	
-	// Menu, Ghost, pacman setup
+	// Draw top wall excluding the first and last block
+	for (int x = 1; x < TILECOUNTX - 1; x++)
+		for (int y = TILECOUNTY - 1; y < TILECOUNTY; y++)
+			_tiles[y * TILECOUNTX + x].wall = true;
+
+	// Draw left wall
+	for (int x = 0; x < 1; x++)
+		for (int y = 0; y < TILECOUNTY; y++)
+			_tiles[y * TILECOUNTX + x].wall = true;
+
+	// Draw right wall
+	for (int x = TILECOUNTX - 1; x < TILECOUNTX; x++)
+		for (int y = 0; y < TILECOUNTY; y++)
+			_tiles[y * TILECOUNTX + x].wall = true;
+    #pragma endregion 
+
+	// Menu, Game Manager, pacman setup
 	_menu = new Menu();
-
-	_enemyGhost = new EnemyGhost();
-	// Manually position the start and end markers so they are not nullptr
-	_enemyGhost->nodeStart = &nodes[100];
-	_enemyGhost->nodeGoal = &nodes[90];
-
+	_gameManager = new GameManager();
 	_pacman = new PlayerClass();
+	_pop = new SoundEffect();
+	_pop->Load("Sounds/pop.wav");
+
+	// Manually position the current and goal nodes so they are not empty
+	_redGhost = new EnemyGhost(Red);
+	_redGhost->currentTile = &_tiles[1];
+	_redGhost->tileGoal = &_tiles[1];
+
+	// Same as above for pink ghost
+	_pinkGhost = new EnemyGhost(Pink);
+	_pinkGhost->currentTile = &_tiles[1];
+	_pinkGhost->tileGoal = &_tiles[1];
 
 	// Load pointer for munchie texture 
 	Texture2D* munchieTex = new Texture2D();
@@ -164,22 +196,17 @@ void Pacman::Draw(int elapsedTime)
 		// Draw all the tiles
 		for (int x = 0; x < TILECOUNTX; x++)
 			for (int y = 0; y < TILECOUNTY; y++)
-				SpriteBatch::DrawRectangle(nodes[y * TILECOUNTX + x].sourceRect, Color::Red);
-
-		if (_enemyGhost->nodeGoal != nullptr)
-		{
-			Node* p = _enemyGhost->nodeGoal;
-			while (p->parent != nullptr)
 			{
-				SpriteBatch::DrawRectangle(p->sourceRect, Color::Blue);
-				// Set next node to this node's parent
-				p = p->parent;
+				if (_tiles[y * TILECOUNTX + x].wall)
+					SpriteBatch::DrawRectangle(_tiles[y * TILECOUNTX + x].rectPosition, _tiles[y * TILECOUNTX + x].sourceRect->Height, 
+						_tiles[y * TILECOUNTX + x].sourceRect->Width, Color::Red);
 			}
-		}
 
+		// Draw the munchies
 		for (i = 0; i < MUNCHIECOUNT; i++)
 			SpriteBatch::Draw(_munchies[i]->texture, _munchies[i]->position, _munchies[i]->sourceRect); // Draws Munchies
 
+		// Draw the cherries
 		for (i = 0; i < CHERRYCOUNT; i++)
 			SpriteBatch::Draw(_cherries[i]->texture, _cherries[i]->position, _cherries[i]->sourceRect); // Draws Cherries
 
@@ -191,9 +218,14 @@ void Pacman::Draw(int elapsedTime)
 		for (i = 0; i < _pacman->currentLives; i++)
 			SpriteBatch::Draw(_lifeUI->texture, _lifeUI->positions[i], _lifeUI->sourceRect);
 
-		SpriteBatch::DrawString(scoreStream.str().c_str(), _menu->scorePosition, Color::Yellow); // Draws Score String
+		// Draws Score String
+		SpriteBatch::DrawString(scoreStream.str().c_str(), _menu->scorePosition, Color::Yellow); 
 
-		SpriteBatch::Draw(_enemyGhost->texture, _enemyGhost->rectPosition, _enemyGhost->sourceRect); // Draw ghost
+		 // Draw Red Ghost
+		SpriteBatch::Draw(_redGhost->texture, _redGhost->rectPosition, _redGhost->sourceRect);
+
+		// Draw Pink Ghost
+		SpriteBatch::Draw(_pinkGhost->texture, _pinkGhost->rectPosition, _pinkGhost->sourceRect);
 	}
 
 	// Draw pause menu
@@ -237,9 +269,19 @@ void Pacman::Update(int elapsedTime)
 		{
 			CheckViewportCollision();
 
-			_pacman->CheckInput(elapsedTime, keyboardState);
+			MarkupWalls(mouseState, _tiles);
+
+			for (int x = 0; x < TILECOUNTX; x++)
+				for (int y = 0; y < TILECOUNTY; y++)
+				{
+					
+				}
+
+			// Pacman functions
+			_pacman->CheckInput(keyboardState);
 			_pacman->UpdatePacman(elapsedTime);
-			_pacman->SetCurrentNode(nodes);
+			_pacman->SetCurrentTile(_tiles);
+			_pacman->Movement(elapsedTime, _tiles);
 
 			// Update munchies
 			for (i = 0; i < MUNCHIECOUNT; i++)
@@ -263,19 +305,22 @@ void Pacman::Update(int elapsedTime)
 				}
 			}	
 
-			// Ghost functions
-			_enemyGhost->SetCurrentNode(nodes);
-			_enemyGhost->SetGoalNode(_pacman);
-			_enemyGhost->solve_Astar(nodes);
-			_enemyGhost->GhostMovement(elapsedTime);
-			_enemyGhost->GhostAnimation();
+			// Red Ghost functions
+			_redGhost->SetCurrentNode(_tiles);
+			_redGhost->GhostAI(elapsedTime, _tiles, _pacman);
+			_redGhost->GhostAnimation();
+
+			_pinkGhost->SetCurrentNode(_tiles);
+			_pinkGhost->GhostAI(elapsedTime, _tiles, _pacman);
+			_pinkGhost->GhostAnimation();
 
 			// If pacman collided with ghost kill pacman
-			if (CheckCollision(_pacman, _enemyGhost))
+			if (CheckCollision(_pacman, _redGhost))
 				{
+					_pacman->dead = true; // kill pacman
+					Audio::Play(_pop);
 					_pacman->currentLives--;
-					_pacman->dead = true;
-					_enemyGhost->rectPosition->X = -100;
+					_redGhost->rectPosition->X = -100; // reset ghost
 				}
 		}
 	}
@@ -342,3 +387,22 @@ bool Pacman::CheckCollision(PlayerClass* pacman, EnemyGhost* ghost)
 	return collisionX && collisionY;
 }
 
+void Pacman::MarkupWalls(Input::MouseState* mouseState, Tile* tiles)
+{
+	// Check x-axis collision
+	for (int x = 0; x < TILECOUNTX; x++)
+		for (int y = 0; y < TILECOUNTY; y++)
+		{
+			bool collisionX = (mouseState->X > tiles[y * TILECOUNTX + x].rectPosition->X &&
+				mouseState->X < tiles[y * TILECOUNTX + x].sourceRect->Width + tiles[y * TILECOUNTX + x].rectPosition->X);
+
+			bool collisionY = (mouseState->Y > tiles[y * TILECOUNTX + x].rectPosition->Y && 
+				mouseState->Y < tiles[y * TILECOUNTX + x].sourceRect->Height + tiles[y * TILECOUNTX + x].rectPosition->Y);
+
+			if (collisionY && collisionX && mouseState->LeftButton == Input::ButtonState::PRESSED)
+			{
+				printf("Tile: %d\n", tiles[y * TILECOUNTX + x].positionInArray);
+				tiles[y * TILECOUNTX + x].wall = true;
+			}
+		}
+}

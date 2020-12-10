@@ -11,14 +11,15 @@
 #define MUNCHIECOUNT 50
 #define CHERRYCOUNT 4
 #define GHOSTCOUNT 4
-#define TILECOUNTX 27
-#define TILECOUNTY 20
+#define TILECOUNTX 27	
+#define TILECOUNTY 30
 
 // Include all the headers
 #include <sstream>
 #include <ctime>
 #include <iostream>
 #include <vector>
+#include <list>
 
 // Include all the classes
 #include "S2D/S2D.h"
@@ -52,13 +53,15 @@ private:
 
 	// class declarations
 	PlayerClass* _pacman;
-	EnemyGhost* _enemyGhost;
+	EnemyGhost* _redGhost;
+	EnemyGhost* _pinkGhost;
 	PowerUp* _munchies[MUNCHIECOUNT];
 	PowerUp* _cherries[CHERRYCOUNT];
 	LifeUI* _lifeUI;
 	Menu* _menu;
 	GameManager* _gameManager;
-	
+	SoundEffect* _pop;
+
 	// Screen Parameters
 	float screenHeight;
 	float screenWidth;
@@ -68,13 +71,11 @@ private:
 	Vector2* _scorePosition;
 
 public:
+	// Declare and initialize nodes
+	Tile* _tiles = nullptr;
+
 	/// <summary> Constructs the Pacman class. </summary>
 	Pacman(int argc, char* argv[]);
-
-	// setup nodes
-	Node* nodes = nullptr;
-	Node* nodeStart = nullptr;
-	Node* nodeEnd = nullptr;
 
 	/// <summary> Destroys any data associated with Pacman class. </summary>
 	virtual ~Pacman();
@@ -91,4 +92,5 @@ public:
 	/// <summary> Checks if there is collision between two objects. </summary>
 	bool CheckCollision(PlayerClass* pacman, PowerUp* powerUp);
 	bool CheckCollision(PlayerClass* pacman, EnemyGhost* ghost);
+	void MarkupWalls(Input::MouseState* mouseState, Tile tiles[]);
 };

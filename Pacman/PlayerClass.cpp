@@ -7,9 +7,9 @@ PlayerClass::PlayerClass()
 {
 	// General Variables
 	currentLives = PACMANLIVES;
-	direction = 0;
+	direction = Right;
 	timePassedHit = 0;
-	speedModifier = 0.3f;
+	speedModifier = 0.1f;
 	dead = false;
 
 	// Initialise Frame Variables
@@ -61,22 +61,24 @@ void PlayerClass::PacmanHit(int elapsedTime)
 	}
 }
 
-void PlayerClass::SetCurrentNode(Node nodes[])
+void PlayerClass::SetCurrentTile(Tile tiles[])
 {
 	// Check collision against every node
 	for (int x = 0; x < TILECOUNTX; x++)
 		for (int y = 0; y < TILECOUNTY; y++)
 		{
 			// Check X collision if no collision we can skip this tile
-			if (position->X < nodes[y * TILECOUNTX + x].position->X + nodes[y * TILECOUNTX + x].sourceRect->Width
-				&& position->X > nodes[y * TILECOUNTX + x].position->X);
+			if (position->X < tiles[y * TILECOUNTX + x].rectPosition->X + tiles[y * TILECOUNTX + x].sourceRect->Width
+				&& position->X > tiles[y * TILECOUNTX + x].rectPosition->X);
 			else
 				break;
 
 			// check Y collision
-			if (position->Y < nodes[y * TILECOUNTX + x].position->Y + nodes[y * TILECOUNTX + x].sourceRect->Height
-				&& position->Y > nodes[y * TILECOUNTX + x].position->Y)
-				currentNode = &nodes[y * TILECOUNTX + x];
+			if (position->Y < tiles[y * TILECOUNTX + x].rectPosition->Y + tiles[y * TILECOUNTX + x].sourceRect->Height
+				&& position->Y > tiles[y * TILECOUNTX + x].rectPosition->Y)
+			{
+				currentTile = &tiles[y * TILECOUNTX + x];
+			}
 		}
 }
 
@@ -100,35 +102,47 @@ void PlayerClass::UpdatePacman(int elapsedTime)
 	}
 }
 
-void PlayerClass::CheckInput(int elapsedTime, Input::KeyboardState* state)
+void PlayerClass::CheckInput(Input::KeyboardState* state)
+{
+	// Pacman Movement 
+	if (state->IsKeyDown(Input::Keys::D))
+		direction = Right; // Face Right
+
+	else if (state->IsKeyDown(Input::Keys::S))
+		direction = Down; // Face Down
+
+	else if (state->IsKeyDown(Input::Keys::A))
+		direction = Left; // Face Left
+
+	else if (state->IsKeyDown(Input::Keys::W))
+		direction = Up; // Face Up
+}
+
+void PlayerClass::Movement(int elapsedTime, Tile tiles[])
 {
 	float pacmanSpeed = speedModifier * elapsedTime;
 
-	// Pacman Movement 
-	if (state->IsKeyDown(Input::Keys::D))
+	switch (direction)
 	{
+	case Right:
+		if (// Center of right wall is colliding with the left wall of the tile on the right stop movement)
 		rectPosition->X += pacmanSpeed; // Move Right
 		position->X += pacmanSpeed;
-		direction = 0; // Face Right
-	}
-	else if (state->IsKeyDown(Input::Keys::S))
-	{
+		break;
+	case Down:
 		rectPosition->Y += pacmanSpeed; // Move Down
 		position->Y += pacmanSpeed;
-		direction = 1; // Face Down
-	}
-	else if (state->IsKeyDown(Input::Keys::A))
-	{
+		break;
+	case Left:
 		rectPosition->X -= pacmanSpeed; // Move Left
 		position->X -= pacmanSpeed;
-		direction = 2; // Face Left
-
-	}
-	else if (state->IsKeyDown(Input::Keys::W))
-	{
+		break;
+	case Up:
 		rectPosition->Y -= pacmanSpeed; // Move Up
 		position->Y -= pacmanSpeed;
-		direction = 3; // Face Up
+		break;
+	default:
+		break;
 	}
 }
 

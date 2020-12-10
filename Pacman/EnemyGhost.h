@@ -8,24 +8,26 @@
 // Reduces the amount of typing by including all classes in S2D namespace
 using namespace S2D;
 
+enum GhostColour { Red, Pink, Blue, Orange };
+
 class EnemyGhost
 {
 public:
-	EnemyGhost();
+	EnemyGhost(GhostColour ghostColour);
 	~EnemyGhost();
 	int direction;
 	float speed;
-	Node* nodeStart;
-	Node* nodeGoal;
+	Tile* currentTile;
+	Tile* tileGoal;
 	Vector2* rectPosition;
 	Vector2* position;
 	Texture2D* texture;
 	Rect* sourceRect;
+	GhostColour type;
 public:
-	void GhostMovement(int elapsedTime);
+	void GhostAI(int elapsedTime, Tile nodes[], PlayerClass* _pacman);
 	void GhostAnimation();
-	void SetGoalNode(PlayerClass* _pacman);
-	void SetCurrentNode(Node nodes[]);
-	bool solve_Astar(Node nodes[]);
+	void SetCurrentNode(Tile nodes[]);
+	bool solve_Astar(Tile nodes[]);
 };
 

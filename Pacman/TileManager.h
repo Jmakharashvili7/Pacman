@@ -6,16 +6,17 @@
 using namespace S2D;
 using namespace std;
 
-class Node
+class Tile
 {
 public:
 	bool wall = false;
 	bool visited = false;
 	float globalGoal;
 	float localGoal;
-	Vector2* position;
+	int positionInArray;
+	Vector2* rectPosition;
 	Rect* sourceRect;
-	vector<Node*> nodeNeighbours;
-	Node* parent;
-	void solve_Astar(Node* nodes[]);
+	Vector2* position;
+	vector<Tile*> nodeNeighbours;
+	Tile* parent;
 };
