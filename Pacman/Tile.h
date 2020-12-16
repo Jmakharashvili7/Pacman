@@ -9,12 +9,13 @@ using namespace std;
 class Tile
 {
 public:
+	Tile();
+	~Tile();
 	bool wall = false;
 	bool visited = false;
 	float globalGoal;
 	float localGoal;
-	int positionInArray;
-	Vector2* rectPosition;
+	int posInArray;
 	Rect* sourceRect;
 	Vector2* position;
 	vector<Tile*> nodeNeighbours;

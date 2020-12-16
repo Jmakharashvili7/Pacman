@@ -3,7 +3,7 @@
 
 // Just need to include main header file
 #include "S2D/S2D.h"
-#include "TileManager.h"
+#include "Tile.h"
 
 // Reduces the amount of typing by including all classes in S2D namespace
 using namespace S2D;
@@ -13,7 +13,7 @@ enum PacmanDirection { Right, Down, Left, Up };
 class PlayerClass
 {
 public:
-	PlayerClass();
+	PlayerClass(Tile* tile);
 	~PlayerClass();
 
 	// General pacman Variables
@@ -27,9 +27,9 @@ public:
 
 	// Variables for drawing pacman
 	Texture2D* texture;
-	Vector2* rectPosition;
 	Vector2* position;
 	Rect* sourceRect;
+	Rect* textRect;
 private:
 	// Frame Variables
 	int s_frameTime;
@@ -43,8 +43,8 @@ public:
 	// Pacman Methods
 	void PacmanHit(int elapsedTime);
 	void UpdatePacman(int elapsedTime);
-	void SetCurrentTile(Tile nodes[]);
-	void Movement(int elapsedTime, Tile nodes[]);
+	void SetCurrentTile(Tile tiles[]);
+	void Movement(int elapsedTime, Tile tiles[]);
 	void CheckInput(Input::KeyboardState* state);
 };
 

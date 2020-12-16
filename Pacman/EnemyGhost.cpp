@@ -1,19 +1,19 @@
 #include "EnemyGhost.h"
 #include "pacman.h"
 
-EnemyGhost::EnemyGhost(GhostColour ghostColour)
+EnemyGhost::EnemyGhost(GhostColour ghostColour, Tile* spawn)
 {
 	switch (ghostColour)
 	{
 	case Red: 
 		type = ghostColour;
 		direction = 0;
-		speed = 0.2f;
+		speed = 0.1f;
 		texture = new Texture2D();
 		texture->Load("Textures/Ghost_Pink_Sprite_Sheet.png", false);
-		rectPosition = new Vector2(50.0f, 50.0f);
-		sourceRect = new Rect(0.0f, 0.0f, 32.0f, 32.0f);
-		position = new Vector2((rectPosition->X + sourceRect->Width) / 2, (rectPosition->Y + sourceRect->Height) / 2);
+		sourceRect = new Rect(spawn->sourceRect->X, spawn->sourceRect->Y, 27.0f, 27.0f);
+		textureRect = new Rect(0.0f, 0.0f, 32.0f, 32.0f);
+		position = new Vector2(sourceRect->Center());
 		break;
 
 	case Pink: 
@@ -22,9 +22,9 @@ EnemyGhost::EnemyGhost(GhostColour ghostColour)
 		speed = 0.2f;
 		texture = new Texture2D();
 		texture->Load("Textures/Ghost_Pink_Sprite_Sheet.png", false);
-		rectPosition = new Vector2(50.0f, 50.0f);
-		sourceRect = new Rect(0.0f, 0.0f, 32.0f, 32.0f);
-		position = new Vector2(rectPosition->X + sourceRect->Width / 2.0f, (rectPosition->Y + sourceRect->Height) / 2);
+		sourceRect = new Rect(spawn->position->X, spawn->position->Y, 27.0f, 27.0f);
+		textureRect = new Rect(0.0f, 0.0f, 32.0f, 32.0f);
+		position = new Vector2(sourceRect->Center());
 		break;
 
 	case Blue: 
@@ -33,9 +33,9 @@ EnemyGhost::EnemyGhost(GhostColour ghostColour)
 		speed = 0.2f;
 		texture = new Texture2D();
 		texture->Load("Textures/Ghost_Pink_Sprite_Sheet.png", false);
-		rectPosition = new Vector2((rand() % Graphics::GetViewportWidth()), (rand() % Graphics::GetViewportHeight()));
-		sourceRect = new Rect(0.0f, 0.0f, 32.0f, 32.0f);
-		position = new Vector2((rectPosition->X + sourceRect->Width) / 2.0f, (rectPosition->Y - sourceRect->Height) / 2);
+		sourceRect = new Rect(spawn->position->X, spawn->position->Y, 27.0f, 27.0f);
+		textureRect = new Rect(0.0f, 0.0f, 32.0f, 32.0f);
+		position = new Vector2(sourceRect->Center());
 		break;
 
 	case Orange: 
@@ -44,16 +44,16 @@ EnemyGhost::EnemyGhost(GhostColour ghostColour)
 		speed = 0.2f;
 		texture = new Texture2D();
 		texture->Load("Textures/Ghost_Pink_Sprite_Sheet.png", false);
-		rectPosition = new Vector2((rand() % Graphics::GetViewportWidth()), (rand() % Graphics::GetViewportHeight()));
-		sourceRect = new Rect(0.0f, 0.0f, 32.0f, 32.0f);
-		position = new Vector2((rectPosition->X + sourceRect->Width) / 2.0f, (rectPosition->Y - sourceRect->Height) / 2);
+		sourceRect = new Rect(spawn->position->X, spawn->position->Y, 27.0f, 27.0f);
+		textureRect = new Rect(0.0f, 0.0f, 32.0f, 32.0f);
+		position = new Vector2(sourceRect->Center());
 		break;
 	}
 }
 
 void EnemyGhost::GhostAnimation()
 {
-	sourceRect->X = sourceRect->Width * direction;
+	textureRect->X = textureRect->Width * direction;
 }
 
 void EnemyGhost::SetCurrentNode(Tile tiles[])
@@ -63,14 +63,14 @@ void EnemyGhost::SetCurrentNode(Tile tiles[])
 		for (int y = 0; y < TILECOUNTY; y++)
 		{
 			// Check X collision if no collision we can skip this tile
-			if (position->X < tiles[y * TILECOUNTX + x].rectPosition->X + tiles[y * TILECOUNTX + x].sourceRect->Width
-				&& position->X > tiles[y * TILECOUNTX + x].rectPosition->X);
+			if (position->X < tiles[y * TILECOUNTX + x].sourceRect->X + tiles[y * TILECOUNTX + x].sourceRect->Width
+				&& position->X > tiles[y * TILECOUNTX + x].sourceRect->X);
 			else
 				break;
 			
 			// check Y collision
-			if (position->Y < tiles[y * TILECOUNTX + x].rectPosition->Y + tiles[y * TILECOUNTX + x].sourceRect->Height
-				&& position->Y > tiles[y * TILECOUNTX + x].rectPosition->Y)
+			if (position->Y < tiles[y * TILECOUNTX + x].sourceRect->Y + tiles[y * TILECOUNTX + x].sourceRect->Height
+				&& position->Y > tiles[y * TILECOUNTX + x].sourceRect->Y)
 				currentTile = &tiles[y * TILECOUNTX + x];
 		}
 }
@@ -89,7 +89,8 @@ bool EnemyGhost::solve_Astar(Tile tiles[])
 
 	auto distance = [](Tile* a, Tile* b)
 	{
-		return sqrtf((a->rectPosition->X - b->rectPosition->X) * (a->rectPosition->X - b->rectPosition->X) + (a->rectPosition->Y - b->rectPosition->Y) * (a->rectPosition->Y - b->rectPosition->Y));
+		return sqrtf((a->sourceRect->X - b->sourceRect->X) * (a->sourceRect->X - b->sourceRect->X) + 
+			(a->sourceRect->Y - b->sourceRect->Y) * (a->sourceRect->Y - b->sourceRect->Y));
 	};
 
 	// Heuristic function to rank the nodes
@@ -123,13 +124,13 @@ bool EnemyGhost::solve_Astar(Tile tiles[])
 
 		// Move it to the front of the list and mark the node as visited
 		nodeCurrent = listNotTestedNodes.front();
-		nodeCurrent->visited = true; 
+		nodeCurrent->visited = true;	
 
 		// Check each of this node's neighbours...
 		for (auto nodeNeighbour : nodeCurrent->nodeNeighbours)
 		{
 			// Check if the neighbor nodes have been visited of they are a wall
-			if (!nodeNeighbour->visited && !nodeNeighbour->wall)
+			if (!nodeNeighbour->visited && nodeNeighbour->wall == 0)
 			{
 				listNotTestedNodes.push_back(nodeNeighbour);
 
@@ -157,12 +158,10 @@ bool EnemyGhost::solve_Astar(Tile tiles[])
 
 void EnemyGhost::GhostAI(int elapsedTime, Tile tiles[], PlayerClass* _pacman)
 {
-	solve_Astar(tiles);
-
 	// Ghosts speed
 	float moveSpeed = speed * elapsedTime;
 	// Pacman tile position in array
-	int pacmanTile = _pacman->currentTile->positionInArray;
+	int pacmanTile = _pacman->currentTile->posInArray;
 
 	switch (type)
 	{
@@ -187,24 +186,26 @@ void EnemyGhost::GhostAI(int elapsedTime, Tile tiles[], PlayerClass* _pacman)
 		break;
 	}
 
+	solve_Astar(tiles);
+
 	if (tileGoal != nullptr)
 	{
 		if (tileGoal->parent != nullptr)
 		{
 			// If the tile is on the right of the ghost move right
-			if (currentTile->position->X < tileGoal->position->X)
+			if (position->X < tileGoal->position->X)
 				direction = 0;
 
 			// If the tile is above the ghost move up
-			else if (currentTile->position->Y > tileGoal->position->Y)
+			else if (position->Y > tileGoal->position->Y)
 				direction = 1;
 
 			// If the tile is under the ghost move down
-			else if (currentTile->position->Y < tileGoal->position->Y)
+			else if (position->Y < tileGoal->position->Y)
 				direction = 2;
 
 			// If the tile is on the left of the ghost move left
-			else if (currentTile->position->X > tileGoal->position->X)
+			else if (position->X > tileGoal->position->X)
 				direction = 3;
 
 			// If the tiles are equal move to next Tile
@@ -214,45 +215,34 @@ void EnemyGhost::GhostAI(int elapsedTime, Tile tiles[], PlayerClass* _pacman)
 	}
 
 	// Ghost movement based on direction
-		if (direction == 0) // Right
-		{
-			rectPosition->X += moveSpeed;
-			position->X += moveSpeed;
-		}
-		else if (direction == 1) // Up 
-		{
-			rectPosition->Y -= moveSpeed;
-			position->Y -= moveSpeed;
-		}
-		else if (direction == 2) // Down
-		{
-			rectPosition->Y += moveSpeed;
-			position->Y += moveSpeed;
-		}
-		else if (direction == 3) // Left
-		{
-			rectPosition->X -= moveSpeed;
-			position->X -= moveSpeed;
-		}
-	/*
-	// Change ghost direction if hit the edge
-	if (rectPosition->X + sourceRect->Width >= Graphics::GetViewportWidth())
-		direction = 3;
-	else if (rectPosition->X <= 0)
-		direction = 0;
-	else if (rectPosition->Y + sourceRect->Height >= Graphics::GetViewportHeight())
-		direction = 1;
-	else if (rectPosition->Y <= 0)
-		direction = 2;
-		*/
+	if (direction == 0) // Right
+	{
+		sourceRect->X += moveSpeed;
+		position->X += moveSpeed;
+	}
+	else if (direction == 1) // Up 
+	{
+		sourceRect->Y -= moveSpeed;
+		position->Y -= moveSpeed;
+	}
+	else if (direction == 2) // Down
+	{
+		sourceRect->Y += moveSpeed;
+		position->Y += moveSpeed;
+	}
+	else if (direction == 3) // Left
+	{
+		sourceRect->X -= moveSpeed;
+		position->X -= moveSpeed;
+	}
 }
 
 EnemyGhost::~EnemyGhost()
 {
 	// delete position and texture variables
 	delete texture;
-	delete rectPosition;
 	delete sourceRect;
+	delete textureRect;
 	delete position;
 	// delete node variables
 	delete currentTile;

@@ -8,11 +8,10 @@
 	#endif
 #endif
 
-#define MUNCHIECOUNT 50
-#define CHERRYCOUNT 4
 #define GHOSTCOUNT 4
-#define TILECOUNTX 27	
-#define TILECOUNTY 30
+#define TILECOUNTX 28
+#define TILECOUNTY 31
+#define TILESIZE 27
 
 // Include all the headers
 #include <sstream>
@@ -25,10 +24,12 @@
 #include "S2D/S2D.h"
 #include "EnemyGhost.h"
 #include "PlayerClass.h"
-#include "PowerUp.h"
 #include "Menu.h"
 #include "GameManager.h"
-#include "TileManager.h"
+#include "Tile.h"
+#include "PowerUp.h"
+#include "Munchie.h"
+#include "Fruit.h"
 
 // Reduces the amount of typing by including all classes in S2D namespace
 using namespace S2D;
@@ -51,12 +52,15 @@ private:
 	void CheckPaused(Input::KeyboardState* state, Input::Keys pauseKey);
 	void CheckViewportCollision();
 
+	// Map
+	wstring _map;
+
 	// class declarations
 	PlayerClass* _pacman;
 	EnemyGhost* _redGhost;
 	EnemyGhost* _pinkGhost;
-	PowerUp* _munchies[MUNCHIECOUNT];
-	PowerUp* _cherries[CHERRYCOUNT];
+	vector<PowerUp*> _munchies;
+	vector<Fruit*> _cherries;
 	LifeUI* _lifeUI;
 	Menu* _menu;
 	GameManager* _gameManager;
@@ -67,9 +71,7 @@ private:
 	float screenWidth;
 
 	// Position for String
-	Vector2* _stringPosition;
 	Vector2* _scorePosition;
-
 public:
 	// Declare and initialize nodes
 	Tile* _tiles = nullptr;
@@ -89,8 +91,8 @@ public:
 	/// <summary> Called every frame - draw game here. </summary>
 	void virtual Draw(int elapsedTime);
 
+private:
 	/// <summary> Checks if there is collision between two objects. </summary>
 	bool CheckCollision(PlayerClass* pacman, PowerUp* powerUp);
 	bool CheckCollision(PlayerClass* pacman, EnemyGhost* ghost);
-	void MarkupWalls(Input::MouseState* mouseState, Tile tiles[]);
 };

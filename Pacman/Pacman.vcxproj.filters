@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="PowerUps">
+      <UniqueIdentifier>{202fbc49-9d7f-4d85-b4cc-eeee605b1e16}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Pacman.cpp">
@@ -27,16 +30,22 @@
     <ClCompile Include="PlayerClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PowerUp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TileManager.cpp">
+    <ClCompile Include="PowerUp.cpp">
+      <Filter>PowerUps</Filter>
+    </ClCompile>
+    <ClCompile Include="Munchie.cpp">
+      <Filter>PowerUps</Filter>
+    </ClCompile>
+    <ClCompile Include="Fruit.cpp">
+      <Filter>PowerUps</Filter>
+    </ClCompile>
+    <ClCompile Include="Tile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,16 +59,22 @@
     <ClInclude Include="EnemyGhost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PowerUp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TileManager.h">
+    <ClInclude Include="PowerUp.h">
+      <Filter>PowerUps</Filter>
+    </ClInclude>
+    <ClInclude Include="Munchie.h">
+      <Filter>PowerUps</Filter>
+    </ClInclude>
+    <ClInclude Include="Fruit.h">
+      <Filter>PowerUps</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

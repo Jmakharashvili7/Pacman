@@ -9,8 +9,6 @@ using namespace S2D;
 class PowerUp
 {
 public:
-	PowerUp();
-	~PowerUp();
 	int currentFrameTime;
 	int frameTime;
 	int frameCount;
